@@ -1,0 +1,6 @@
+[submodule "tomdoc.sh"]
+	path = tomdoc.sh
+	url = https://github.com/tests-always-included/tomdoc.sh.git
+[submodule "github-markdown-toc"]
+	path = github-markdown-toc
+	url = https://github.com/ekalinin/github-markdown-toc

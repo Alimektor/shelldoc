@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# generate markdown doc for shell script.
+
+# shellcheck disable=SC1091
+# shellcheck disable=SC1090
+
+script_in="${1}"
+doc_out="${2}"
+header_doc="${3}"
+description_doc="${4}"
+
+# Determine script path
+SCRIPT_PATH=$(dirname "$0")				# relative
+SCRIPT_PATH=$(cd "$SCRIPT_PATH" && pwd)	# absolutized and normalized
+if [[ -z "$SCRIPT_PATH" ]] ; then
+  # error; for some reason, the path is not accessible
+  # to the script (e.g. permissions re-evaled after suid)
+  exit 1  # fail
+fi
+
+# Declare neccesary scripts
+tomdoc_script="${SCRIPT_PATH}/tomdoc.sh/tomdoc.sh"
+toc_script="${SCRIPT_PATH}/github-markdown-toc/gh-md-toc"
+
+# TODO: add usage
+# TODO: add modificator
+
+${tomdoc_script} --markdown "${script_in}" > "${doc_out}"
+toc=$(${toc_script} ${doc_out})
+echo -e "# ${header_doc}\n${description_doc}\n\n$toc\n\n$(cat ${doc_out})" > "${doc_out}"
+sed -i "/\[gh-md-toc\]/d" ${doc_out}
