@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TODO: Implement the description.
+# generate markdown doc file for bash script
 
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
@@ -42,34 +42,34 @@ function checkargs() {
 }
 
 function run_shelldoc() {
-	ACCESS_ARRAY=("public", "internal", "deprecated")
+	ACCESS_ARRAY=("Public", "Internal", "Deprecated")
 
 	while [ -n "${1}" ]
 	do
 		case "${1}" in
 			--in)
 				checkargs "${1}" "${2}"
-				shelldoc_in="${2}"
+				local shelldoc_in="${2}"
 				shift
 			;;
 			--out)
 				checkargs "${1}" "${2}"
-				shelldoc_out="${2}"
+				local shelldoc_out="${2}"
 				shift
 			;;
 			--header)
 				checkargs "${1}" "${2}"
-				shelldoc_header="${2}"
+				local shelldoc_header="${2}"
 				shift
 			;;
 			--desc)
 				checkargs "${1}" "${2}"
-				shelldoc_desc="${2}"
+				local shelldoc_desc="${2}"
 				shift
 			;;
 			--access)
 				checkargs "${1}" "${2}"
-				shelldoc_access="${2}"
+				local shelldoc_access="${2}"
 				shift
 			;;
 			-h|--help)
@@ -95,18 +95,18 @@ function run_shelldoc() {
 		fi
 	done
 
-	echo "shelldoc_in: ${shelldoc_in}"
-	echo "shelldoc_out: ${shelldoc_out}"
-	echo "shelldoc_header: ${shelldoc_header}"
-	echo "shelldoc_desc: ${shelldoc_desc}"
-	echo "shelldoc_access: ${shelldoc_access}"
+	echo "--in: ${shelldoc_in}"
+	echo "--out: ${shelldoc_out}"
+	echo "--header: ${shelldoc_header}"
+	echo "--desc: ${shelldoc_desc}"
+	echo "--access: ${shelldoc_access}"
 	
 	if [ ! -z ${shelldoc_access} ]
 	then
 		if [[ ! ${ACCESS_ARRAY[*]} =~ "${shelldoc_access}" ]]
 		then
 			echo "The access should be: ${ACCESS_ARRAY[*]}"
-			exit 3
+			exit 1
 		fi
 	fi
 
@@ -116,14 +116,13 @@ function run_shelldoc() {
 
 	if [[ ! -z ${shelldoc_access} ]]
 	then
-		${tomdoc_script} --markdown "${shelldoc_in}" --access "${shelldoc_access}" > "${shelldoc_out}"
+		${tomdoc_script} --access "${shelldoc_access}" --markdown "${shelldoc_in}" > "${shelldoc_out}"
 	else
 		${tomdoc_script} --markdown "${shelldoc_in}" > "${shelldoc_out}"
 	fi
 	toc=$(${toc_script} ${shelldoc_out})
 	echo -e "# ${shelldoc_header}\n${shelldoc_desc}\n\n${toc}\n\n$(cat ${shelldoc_out})" > "${shelldoc_out}"
 	sed -i "/\[gh-md-toc\]/d" ${shelldoc_out}
-
 }
 
 run_shelldoc "$@"
