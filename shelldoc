@@ -4,6 +4,124 @@
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
 
-echo "Need to write something!"
-exit 1
+# Determine script path
+SCRIPT_PATH=$(dirname "$0")				# relative
+SCRIPT_PATH=$(cd "$SCRIPT_PATH" && pwd)	# absolutized and normalized
+if [[ -z "$SCRIPT_PATH" ]]
+then
+	# error; for some reason, the path is not accessible
+	# to the script (e.g. permissions re-evaled after suid)
+	exit 1  # fail
+fi
 
+function usage() {
+	cat << EOF
+Usage: $0 --in <filename_script> --out <filename_document> --header "<header>" --desc "<description>"
+	[--access <public|internal|deprecated>]
+
+	-h, --help			show help text
+	--in				input script file
+	--out				output document file
+	--header			document header
+	--desc				document description
+	--access			filter by access level (public, internal, deprecated)
+EOF
+}
+
+function checkargs() {
+	if [[ ${2} =~ ^-.*$ ]]; then
+		echo "Illegal argument ${2} in option ${1}"
+		usage
+		exit 1
+	fi
+	if [ -z "$2" ]; then
+		echo "Option ${1} is null"
+		usage
+		exit 1
+	fi
+}
+
+function run_shelldoc() {
+	while [ -n "${1}" ]
+	do
+		case "${1}" in
+			--in)
+				checkargs "${1}" "${2}"
+				shelldoc_in="${2}"
+				shift
+			;;
+			--out)
+				checkargs "${1}" "${2}"
+				shelldoc_out="${2}"
+				shift
+			;;
+			--header)
+				checkargs "${1}" "${2}"
+				shelldoc_header="${2}"
+				shift
+			;;
+			--desc)
+				checkargs "${1}" "${2}"
+				shelldoc_desc="${2}"
+				shift
+			;;
+			--access)
+				checkargs "${1}" "${2}"
+				shelldoc_access="${2}"
+				shift
+			;;
+			-h|--help)
+				usage
+				exit 0
+			;;
+			*)
+				echo "${1} is not an option"
+				usage
+				exit 1
+			;;
+		esac
+		shift
+	done
+
+	for param in shelldoc_in shelldoc_out shelldoc_header shelldoc_desc
+	do
+		if [ -z ${!param} &> /dev/null ]
+		then
+			echo "The parameter is not set: --$(echo ${param} | cut -d "_" -f "2" )"
+			usage
+			exit 1
+		fi
+	done
+
+	echo "shelldoc_in: ${shelldoc_in}"
+	echo "shelldoc_out: ${shelldoc_out}"
+	echo "shelldoc_header: ${shelldoc_header}"
+	echo "shelldoc_desc: ${shelldoc_desc}"
+	echo "shelldoc_access: ${shelldoc_access}"
+	
+	if [ ! -z ${shelldoc_access} ]
+	then
+		if [[ ! ${ACCESS_ARRAY[*]} =~ "${shelldoc_access}" ]]
+		then
+			echo "The access should be: ${ACCESS_ARRAY[*]}"
+			exit 3
+		fi
+	fi
+
+	# Declare neccesary scripts
+	tomdoc_script="${SCRIPT_PATH}/tomdoc.sh/tomdoc.sh"
+	toc_script="${SCRIPT_PATH}/github-markdown-toc/gh-md-toc"
+
+	if [[ ! -z ${shelldoc_access} ]]
+	then
+		${tomdoc_script} --markdown "${shelldoc_in}" --access "${shelldoc_access}" > "${doc_out}"
+	else
+		${tomdoc_script} --markdown "${shelldoc_in}" > "${shelldoc_out}"
+	fi
+	toc=$(${toc_script} ${shelldoc_out})
+	echo -e "# ${shelldoc_header}\n${shelldoc_desc}\n\n${toc}\n\n$(cat ${shelldoc_out})" > "${shelldoc_out}"
+	sed -i "/\[gh-md-toc\]/d" ${shelldoc_out}
+
+}
+
+run_shelldoc "$@"
