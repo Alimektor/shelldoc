@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# generate markdown doc file for bash script
+# generate markdown document file for bash script
 
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
@@ -14,20 +14,46 @@ then
 	exit 1  # fail
 fi
 
+# Public: usage example
+#
+# Print usage example of shelldoc 
+#
+# `$0` - script name
+#
+# **Examples**
+#
+#   usage
+#
+# **Returns**
+#
+# nothing, but print usage text
 function usage() {
 	cat << EOF
 Usage: $0 --in <filename_script> --out <filename_document> --header "<header>" --desc "<description>"
-	[--access <public|internal|deprecated>]
+	[--access <Public|Internal|Deprecated>]
 
 	-h, --help			show help text
 	--in				input script file
 	--out				output document file
 	--header			document header
 	--desc				document description
-	--access			filter by access level (public, internal, deprecated)
+	--access			filter by access level (Public, Internal, Deprecated)
 EOF
 }
 
+# Internal: check arguments
+#
+# `$1` - option
+# `$2` - argument
+# 
+# **Examples**
+#
+#   checkargs "--test" "test"
+#
+# **Returns**
+#
+# `0` - if success
+# `1` - exit if fail
 function checkargs() {
 	if [[ ${2} =~ ^-.*$ ]]; then
 		echo "Illegal argument ${2} in option ${1}"
@@ -39,8 +65,25 @@ function checkargs() {
 		usage
 		exit 1
 	fi
+	return 0
 }
 
+# Public: Create a markdown doc for shell script.
+#
+# `--in` - input script file
+# `--out` - output doc file
+# `--header` - header of the doc file
+# `--desc` - description of the script in doc file
+# `--access` - [optional] access for script. Added at the beginning of the function comment
+# 
+# **Examples**
+#
+#   shelldoc --in input.sh --out out.md --header "My awesome script" --desc "The great description"
+#
+# **Returns**
+#
+# `0` - if success
+# `1` - exit if fail
 function run_shelldoc() {
 	ACCESS_ARRAY=("Public", "Internal", "Deprecated")
 
