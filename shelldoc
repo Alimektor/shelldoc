@@ -164,7 +164,7 @@ function run_shelldoc() {
 		${tomdoc_script} --markdown "${shelldoc_in}" > "${shelldoc_out}"
 	fi
 	toc=$(${toc_script} ${shelldoc_out})
-	echo -e "# ${shelldoc_header}\n${shelldoc_desc}\n\n${toc}\n\n$(cat ${shelldoc_out})" > "${shelldoc_out}"
+	echo -e "# ${shelldoc_header}\n\n${shelldoc_desc}\n\n${toc}\n\n$(cat ${shelldoc_out})" > "${shelldoc_out}"
 	sed -i "/\[gh-md-toc\]/d" ${shelldoc_out}
 }
 
