@@ -4,10 +4,6 @@
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
 
-script_in="${1}"
-doc_out="${2}"
-header_doc="${3}"
-description_doc="${4}"
 
 # Determine script path
 SCRIPT_PATH=$(dirname "$0")				# relative
@@ -22,10 +18,110 @@ fi
 tomdoc_script="${SCRIPT_PATH}/tomdoc.sh/tomdoc.sh"
 toc_script="${SCRIPT_PATH}/github-markdown-toc/gh-md-toc"
 
+function usage() {
+	cat << EOF
+Usage: $0 --in <filename_script> --out <filename_document> --header <header> --desc <description>
+	[--access <public|internal|deprecated>]
+
+	-h, --help			show help text
+	--in				input script file
+	--out				output document file
+	--header			document header
+	--desc				document description
+	--access			filter by access level (public, internal, deprecated)
+EOF
+}
+
 # TODO: add usage
 # TODO: add modificator
+function run_shelldoc() {
+	local script_in="${1}"
+	local doc_out="${2}"
+	local header_doc="${3}"
+	local description_doc="${4}"
+	local access="${5}"
 
-${tomdoc_script} --markdown "${script_in}" > "${doc_out}"
-toc=$(${toc_script} ${doc_out})
-echo -e "# ${header_doc}\n${description_doc}\n\n$toc\n\n$(cat ${doc_out})" > "${doc_out}"
-sed -i "/\[gh-md-toc\]/d" ${doc_out}
+	if [[ ! -z ${access} ]]
+	then
+		${tomdoc_script} --markdown "${script_in}" --access "${access}" > "${doc_out}"
+	else
+		${tomdoc_script} --markdown "${script_in}" > "${doc_out}"
+	fi
+	toc=$(${toc_script} ${doc_out})
+	echo -e "# ${header_doc}\n${description_doc}\n\n$toc\n\n$(cat ${doc_out})" > "${doc_out}"
+	sed -i "/\[gh-md-toc\]/d" ${doc_out}
+}
+
+VALID_ARGUMENTS=$#
+
+if [ "${VALID_ARGUMENTS}" -eq 0 ]
+then
+	usage
+	exit 0
+fi
+
+SHORT=h
+LONG=in:,out:,header:,desc:,access:,help
+VALID_ARGS=$(getopt --options $SHORT --longoptions $LONG -- "$@")
+ACCESS_ARRAY=("public", "internal", "deprecated")
+
+# FIX: update header and description for spaces
+eval set -- "$VALID_ARGS"
+while [ : ]; do
+  case "${1}" in
+    --in)
+		shelldoc_in="${2}"
+        shift 2
+        ;;
+    --out)
+		shelldoc_out="${2}"
+        shift 2
+        ;;
+    --header)
+		shelldoc_header="${2}"
+		echo "${shelldoc_header}"
+        shift 2
+        ;;
+    --desc)
+		shelldoc_desc="${2}"
+        shift 2
+        ;;
+	--access)
+		shelldoc_access="${2}"
+		shift 2
+		;;
+	-h|-help)
+		usage
+		exit 0
+		;;
+    --) shift; 
+        break 
+        ;;
+	*)
+      echo "Unexpected option: ${1}"
+	  exit 1
+      ;;
+  esac
+done
+
+exit 0
+
+for param in shelldoc_in shelldoc_out shelldoc_header shelldoc_desc
+do
+	if [ -z ${!param} &> /dev/null ]
+	then
+		echo "The parameter is not set: --$(echo ${param} | cut -d "_" -f "2" )"
+		exit 2
+	fi
+done
+
+if [ ! -z ${shelldoc_access} ]
+then
+	if [[ ! ${ACCESS_ARRAY[*]} =~ "${shelldoc_access}" ]]
+	then
+		echo "The access should be: ${ACCESS_ARRAY[*]}"
+		exit 3
+	fi
+fi
+
+run_shelldoc "${shelldoc_in}" "${shelldoc_out}" "${shelldoc_header}" "${shelldoc_desc}" "${shelldoc_access}"
