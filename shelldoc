@@ -116,7 +116,7 @@ function run_shelldoc() {
 
 	if [[ ! -z ${shelldoc_access} ]]
 	then
-		${tomdoc_script} --markdown "${shelldoc_in}" --access "${shelldoc_access}" > "${doc_out}"
+		${tomdoc_script} --markdown "${shelldoc_in}" --access "${shelldoc_access}" > "${shelldoc_out}"
 	else
 		${tomdoc_script} --markdown "${shelldoc_in}" > "${shelldoc_out}"
 	fi
