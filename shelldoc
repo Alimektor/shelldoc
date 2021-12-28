@@ -42,6 +42,8 @@ function checkargs() {
 }
 
 function run_shelldoc() {
+	ACCESS_ARRAY=("public", "internal", "deprecated")
+
 	while [ -n "${1}" ]
 	do
 		case "${1}" in
