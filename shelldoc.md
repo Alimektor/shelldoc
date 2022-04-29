@@ -1,4 +1,5 @@
 # shelldoc docs
+
 A simple utility for creating [Tomdoc](http://tomdoc.org/) style documentation for bash script.
 
 
@@ -12,11 +13,11 @@ Table of Contents
 `usage()`
 ---------
 
-Public: usage example
+Public: Usage example
 
-Print usage example of shelldoc
+Print usage example of shelldoc.
 
-* `$0` - script name
+* `$0` - Script name.
 
 **Examples**
 
@@ -24,19 +25,19 @@ Print usage example of shelldoc
 
 **Returns**
 
-nothing, but print usage text
+Nothing, but print usage text.
 
 
 `run_shelldoc()`
 ----------------
 
-Public: Create a markdown doc for shell script.
+Public: Create a markdown doc for shell script
 
-* `--in` - input script file
-* `--out` - output doc file
-* `--header` - header of the doc file
-* `--desc` - description of the script in doc file
-* `--access` - [optional] access for script. Added at the beginning of the function comment
+* `--in` - Input script file.
+* `--out` - Output doc file.
+* `--header` - Header of the doc file.
+* `--desc` - Description of the script in doc file.
+* `--access` - [optional] Access for script. Added at the beginning of the function comment.
 
 **Examples**
 
@@ -44,5 +45,5 @@ Public: Create a markdown doc for shell script.
 
 **Returns**
 
-* `0` - if success
-* `1` - exit if fail
+* `0` - (exit code) If success.
+* `1` - (exit code) If fail.

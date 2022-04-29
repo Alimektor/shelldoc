@@ -25,16 +25,16 @@ Shelldoc Usage in [Tomdoc style](shelldoc.md#run_shelldoc)
 
 ### Quick Start ###
 
-Use the following template for commenting your bash scripts:
+Use the following template for commenting your bash functions:
 
 ```bash
 # Public: Short description
 #
-# [Optional] Long description
+# [Optional] Long description.
 #
-# `$1` - the first argument
-# `$2` - the second argument
-# `$3` - the third argument
+# `$1` - The first argument.
+# `$2` - The second argument.
+# `$3` - The third argument.
 # 
 # **Examples**
 #
@@ -42,9 +42,18 @@ Use the following template for commenting your bash scripts:
 #
 # **Returns**
 #
-# `0` - if success
-# `1` - if fail
+# `0` - If success.
+# `1` - If fail.
 function func() {}
+```
+
+Use the following template for commenting your bash variables:
+
+```bash
+# Public: Short description.
+#
+# Export in environment.
+export SHELLDOC="/home/test/shelldoc"
 ```
 
 Examples

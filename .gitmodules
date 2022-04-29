@@ -5,5 +5,4 @@
 [submodule "github-markdown-toc"]
 	path = github-markdown-toc
 	url = https://github.com/ekalinin/github-markdown-toc
-	branch = master
 
